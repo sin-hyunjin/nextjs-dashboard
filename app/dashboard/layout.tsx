@@ -1,5 +1,7 @@
 import SideNav from "@/app/ui/dashboard/sidenav";
 
+export const experimental_ppr = true; // 초기 로딩 성능 개선을 위한 정적 부분을 미리 렌더링하고 사용자가 요청할 때까지 동적 부분을 연기
+
 type Props = {
   children: React.ReactNode;
 };
