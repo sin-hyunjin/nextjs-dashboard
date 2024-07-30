@@ -1,16 +1,24 @@
-import { CustomerField } from '@/app/lib/definitions';
-import Link from 'next/link';
+"use client";
+import { CustomerField } from "@/app/lib/definitions";
+import Link from "next/link";
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
-} from '@heroicons/react/24/outline';
-import { Button } from '@/app/ui/button';
-
+} from "@heroicons/react/24/outline";
+import { Button } from "@/app/ui/button";
+import { createInvoice, State } from "@/app/lib/actions";
+// import { useActionState } from "react";  // react19 버전과 next.js 오류로 useFromstate로 변경
+import { useFormState } from "react-dom";
 export default function Form({ customers }: { customers: CustomerField[] }) {
+  const initialState: State = { message: null, errors: {} };
+  const [state, formAction] = useFormState(createInvoice, initialState);
+
   return (
-    <form>
+    // ML에서는 속성에 URL을 전달합니다 action. 이 URL은 양식 데이터를 제출해야 하는 대상(일반적으로 API 엔드포인트)이 됩니다.
+    // 그러나 React에서는 이 action속성이 특별한 prop으로 간주
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -23,6 +31,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
+              aria-describedby="customer-error"
             >
               <option value="" disabled>
                 Select a customer
@@ -34,6 +43,14 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               ))}
             </select>
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+          <div id="customer-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.customerId &&
+              state.errors.customerId.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
           </div>
         </div>
 
@@ -51,6 +68,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 step="0.01"
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                required
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
